@@ -130,8 +130,8 @@ int main(int argc, char **argv)
             double measured = 1000.0 * (100.0 - mcpu) / mcpu;
             scale *= wanted / measured;
 
-            printf("Over %lu us, ratio=%lu.%02lu%%, %lu loops, %lu MB memory\n",
-                   total, 100 * busy/total, 10000 * busy/total % 100,
+            printf("Over %lu us, ratio=%lu.%02lu%%, scaling %5.2f%%, %lu loops, %lu MB memory\n",
+                   total, 100 * busy/total, 10000 * busy/total % 100, 100.0 * scale / wanted,
                    loops, alloc / MB);
 
             print = start;
