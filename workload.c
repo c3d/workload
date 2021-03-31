@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 //   Process options and run the workload
 // ----------------------------------------------------------------------------
 {
-    if (argc < 2 || argc > 3)
+    if (argc < 2 || argc > 4)
         usage(argv[0]);
 
     const size_t MB = 1024 * 1024;
@@ -85,6 +85,7 @@ int main(int argc, char **argv)
 
     unsigned cpu = atoi(argv[1]);
     size_t memory = argc > 2 ? atoi(argv[2]) * MB : 0;
+    size_t increment = argc > 3 ? atoi(argv[3]) : 1;
     size_t alloc = 0;
 
     char *ptr = NULL;
@@ -99,7 +100,7 @@ int main(int argc, char **argv)
         tick_t start = tick();
         if (!memory || alloc < memory)
         {
-            alloc += PAGE;
+            alloc += increment * PAGE;
             char *resized = realloc(ptr, alloc);
             if (!resized)
                 printf("Allocation failed at %lu MB\n", alloc / MB);

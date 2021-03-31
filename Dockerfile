@@ -1,5 +1,5 @@
 FROM ubi8
 RUN dnf install -y gcc make git
 RUN git clone https://github.com/c3d/workload && cd workload && make
-ENTRYPOINT workload/workload
-CMD ["50", "200"]
+ENV CPU=50 MEMORY=200 INCREMENT=128
+CMD ["bash", "-c", "workload/workload $CPU $MEMORY $INCREMENT" ]
