@@ -92,6 +92,7 @@ int main(int argc, char **argv)
     tick_t busy = 0, sleeping = 0;
     tick_t print = tick();
     size_t loops = 0;
+    size_t signaled = 0;
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
 
@@ -120,11 +121,9 @@ int main(int argc, char **argv)
         while (ts.tv_nsec)
         {
             int rc = nanosleep(&ts, &ts);
-            if (rc)
-                printf("Interrupted %d\n", rc);
-            else
+            if (!rc)
                 break;
-
+            signaled++;
         }
 
         tick_t slept = tick() - (start + duration);
@@ -142,14 +141,17 @@ int main(int argc, char **argv)
                 target = 100.0 * wanted;
             scale = 0.1 * target + 0.9 * scale;
 
-            printf("Over %lu us, ratio=%lu.%02lu%%, scaling %5.2f%%, %lu loops, %lu MB memory\n",
-                   total, 100 * busy/total, 10000 * busy/total % 100, 100.0 * scale / wanted,
-                   loops, alloc / MB);
+            printf("Over %lu us, ratio=%lu.%02lu%%, scaling %5.2f%%, "
+                   "%lu loops %lu signals, %lu MB memory\n",
+                   total, 100 * busy/total, 10000 * busy/total % 100,
+                   100.0 * scale / wanted,
+                   loops, signaled, alloc / MB);
 
             print = start;
             busy = 0;
             sleeping = 0;
             loops = 0;
+            signaled = 0;
         }
     }
 }
