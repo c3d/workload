@@ -117,8 +117,15 @@ int main(int argc, char **argv)
         struct timespec ts;
         ts.tv_sec = 0;
         ts.tv_nsec = (tick_t) (scale * duration);
-        if (ts.tv_nsec)
-            nanosleep(&ts, NULL);
+        while (ts.tv_nsec)
+        {
+            int rc = nanosleep(&ts, &ts);
+            if (rc)
+                printf("Interrupted %d\n", rc);
+            else
+                break;
+
+        }
 
         tick_t slept = tick() - (start + duration);
         sleeping += slept;
