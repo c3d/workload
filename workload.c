@@ -128,7 +128,12 @@ int main(int argc, char **argv)
         {
             double mcpu = 100.0 * busy / total;
             double measured = 1000.0 * (100.0 - mcpu) / mcpu;
-            scale *= wanted / measured;
+            double target = scale * wanted / measured;
+            if (target < 0.01 * wanted)
+                target = 0.01 * wanted;
+            else if (target > 100.0 * wanted)
+                target = 100.0 * wanted;
+            scale = 0.1 * target + 0.9 * scale;
 
             printf("Over %lu us, ratio=%lu.%02lu%%, scaling %5.2f%%, %lu loops, %lu MB memory\n",
                    total, 100 * busy/total, 10000 * busy/total % 100, 100.0 * scale / wanted,
