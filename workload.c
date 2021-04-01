@@ -115,10 +115,11 @@ int main(int argc, char **argv)
         tick_t duration = tick() - start;
         busy += duration;
 
+        tick_t scaled = (tick_t) (scale * duration);
         struct timespec ts;
-        ts.tv_sec = 0;
-        ts.tv_nsec = (tick_t) (scale * duration);
-        while (ts.tv_nsec)
+        ts.tv_sec = scaled / 1000000000;
+        ts.tv_nsec = scaled % 1000000000;
+        while (ts.tv_nsec || ts.tv_sec)
         {
             int rc = nanosleep(&ts, &ts);
             if (!rc)
