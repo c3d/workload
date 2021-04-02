@@ -100,13 +100,13 @@ int main(int argc, char **argv)
         printf("Using %.2f%% CPU and %lu.%02luMB memory"
                " in %lu.%02luMB increments\n",
                cpu,
-               memory / 100, memory % 100,
-               increment / 100, increment %100);
+               memory / MB, memory * 100 / MB % 100,
+               increment / MB, increment * 100 / MB % 100);
     else
         printf("Using %.2f%% CPU and unlimited memory"
                " in %lu.%02luMB increments\n",
                cpu,
-               increment / 100, increment %100);
+               increment / MB, increment * 100 / MB % 100);
 
     while (++loops)
     {
@@ -116,9 +116,15 @@ int main(int argc, char **argv)
             alloc += increment;
             char *resized = realloc(ptr, alloc);
             if (!resized)
+            {
                 printf("Allocation failed at %lu MB\n", alloc / MB);
+                alloc -= increment;
+                increment /= 2;
+            }
             else
+            {
                 ptr = resized;
+            }
         }
 
         for (char *p = ptr; p < ptr + alloc; p += PAGE)
