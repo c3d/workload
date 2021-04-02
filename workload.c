@@ -83,9 +83,9 @@ int main(int argc, char **argv)
     const size_t MB = 1024 * 1024;
     const size_t PAGE = 4 * 1024;
 
-    unsigned cpu = atoi(argv[1]);
-    size_t memory = argc > 2 ? atoi(argv[2]) * MB : 0;
-    size_t increment = argc > 3 ? atoi(argv[3]) : 1;
+    double cpu = atof(argv[1]);
+    size_t memory = argc > 2 ? (size_t) (atof(argv[2]) * MB) : 0;
+    size_t increment = argc > 3 ? (size_t) (atof(argv[3]) * MB) : PAGE;
     size_t alloc = 0;
 
     char *ptr = NULL;
@@ -96,12 +96,24 @@ int main(int argc, char **argv)
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
 
+    if (memory)
+        printf("Using %.2f%% CPU and %lu.%02luMB memory"
+               " in %lu.%02luMB increments\n",
+               cpu,
+               memory / 100, memory % 100,
+               increment / 100, increment %100);
+    else
+        printf("Using %.2f%% CPU and unlimited memory"
+               " in %lu.%02luMB increments\n",
+               cpu,
+               increment / 100, increment %100);
+
     while (++loops)
     {
         tick_t start = tick();
         if (!memory || alloc < memory)
         {
-            alloc += increment * PAGE;
+            alloc += increment;
             char *resized = realloc(ptr, alloc);
             if (!resized)
                 printf("Allocation failed at %lu MB\n", alloc / MB);
