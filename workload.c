@@ -92,9 +92,13 @@ int main(int argc, char **argv)
     tick_t busy = 0, sleeping = 0;
     tick_t print = tick();
     size_t loops = 0;
+    size_t work_units = 0;
     size_t signaled = 0;
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
+    tick_t epoch = tick();
+    char * rname = getenv("REPORT");
+    FILE * report = rname ? fopen(rname, "w") : NULL;
 
     if (memory)
         printf("Using %.2f%% CPU and %lu.%02luMB memory"
@@ -128,7 +132,10 @@ int main(int argc, char **argv)
         }
 
         for (char *p = ptr; p < ptr + alloc; p += PAGE)
+        {
+            work_units++;
             *((tick_t *) p) = start + p - ptr;
+        }
 
         tick_t duration = tick() - start;
         busy += duration;
@@ -171,6 +178,11 @@ int main(int argc, char **argv)
             sleeping = 0;
             loops = 0;
             signaled = 0;
+            if (report)
+            {
+                fprintf(report, "%lu %lu\n", work_units, tick() - epoch);
+                fflush(report);
+            }
         }
     }
 }
