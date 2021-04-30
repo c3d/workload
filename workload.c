@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <sys/time.h>
 
@@ -97,7 +98,15 @@ int main(int argc, char **argv)
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
     char * rname = getenv("REPORT");
-    FILE * report = rname ? fopen(rname, "w") : NULL;
+    FILE * report = NULL;
+
+    if (rname)
+    {
+        char *fname = strdup(rname);
+        fname = mktemp(fname);
+        report = fopen(fname, "w");
+        free(fname);
+    }
 
     if (memory)
         printf("Using %.2f%% CPU and %lu.%02luMB memory"
