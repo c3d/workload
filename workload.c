@@ -96,7 +96,6 @@ int main(int argc, char **argv)
     size_t signaled = 0;
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
-    tick_t epoch = tick();
     char * rname = getenv("REPORT");
     FILE * report = rname ? fopen(rname, "w") : NULL;
 
@@ -173,16 +172,18 @@ int main(int argc, char **argv)
                    100.0 * scale / wanted,
                    loops, signaled, alloc / MB);
 
+            if (report)
+            {
+                fprintf(report, "%lu %lu\n", work_units, total);
+                fflush(report);
+            }
+
             print = start;
             busy = 0;
             sleeping = 0;
             loops = 0;
             signaled = 0;
-            if (report)
-            {
-                fprintf(report, "%lu %lu\n", work_units, tick() - epoch);
-                fflush(report);
-            }
+            work_units = 0;
         }
     }
 }
