@@ -98,15 +98,8 @@ int main(int argc, char **argv)
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
     char * rname = getenv("REPORT");
-    FILE * report = NULL;
-
     if (rname)
-    {
-        char *fname = strdup(rname);
-        fname = mktemp(fname);
-        report = fopen(fname, "w");
-        free(fname);
-    }
+        rname = mktemp(strdup(rname));
 
     if (memory)
         printf("Using %.2f%% CPU and %lu.%02luMB memory"
@@ -181,10 +174,11 @@ int main(int argc, char **argv)
                    100.0 * scale / wanted,
                    loops, signaled, alloc / MB);
 
-            if (report)
+            if (rname)
             {
+                FILE *report = fopen(rname, "w");
                 fprintf(report, "%lu %lu\n", work_units, total);
-                fflush(report);
+                fclose(report);
             }
 
             print = start;
