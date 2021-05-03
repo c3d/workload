@@ -97,9 +97,17 @@ int main(int argc, char **argv)
     size_t signaled = 0;
     double scale = 1000.0 * (100.0 - cpu) / cpu;
     double wanted = scale;
-    char * rname = getenv("REPORT");
-    if (rname)
-        rname = mktemp(strdup(rname));
+    char * report_pattern = getenv("REPORT");
+    char * report_name = NULL;
+    char * temp_name = NULL;
+
+    if (report_pattern)
+    {
+        report_name = mktemp(strdup(report_pattern));
+        temp_name = malloc(strlen(report_name) + sizeof ".tmp");
+        strcpy(temp_name, report_name);
+        strcat(temp_name, ".tmp");
+    }
 
     if (memory)
         printf("Using %.2f%% CPU and %lu.%02luMB memory"
@@ -174,11 +182,12 @@ int main(int argc, char **argv)
                    100.0 * scale / wanted,
                    loops, signaled, alloc / MB);
 
-            if (rname)
+            if (report_pattern)
             {
-                FILE *report = fopen(rname, "w");
+                FILE *report = fopen(temp_name, "w");
                 fprintf(report, "%lu %lu\n", work_units, total);
                 fclose(report);
+                rename(temp_name, report_name);
             }
 
             print = start;
